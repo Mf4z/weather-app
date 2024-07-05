@@ -5,14 +5,17 @@ const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [cityName, setCityName] = useState("");
   const [error, setError] = useState(null);
+  const [isloading, setIsloading] = useState(false);
 
   const fetchData = async (e) => {
     if (e.key === "Enter") {
       try {
+        setIsloading(true);
         const data = await fetchWeather(cityName);
         setWeatherData(data);
         setCityName("");
         setError(null);
+        setIsloading(false);
       } catch (error) {
         setError(error.message);
       }
@@ -28,6 +31,7 @@ const App = () => {
         onChange={(e) => setCityName(e.target.value)}
         onKeyDown={fetchData}
       />
+      {isloading && <p>Loading...</p>}
       {error && <div style={{ color: "red" }}>{error}</div>}
       {weatherData && (
         <div>
