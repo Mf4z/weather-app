@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchWeather } from "./api/fetchWeather";
 
 const App = () => {
@@ -6,21 +6,44 @@ const App = () => {
   const [cityName, setCityName] = useState("");
   const [error, setError] = useState(null);
   const [isloading, setIsloading] = useState(false);
+  const [recentSearch, setRecentSearch] = useState([]);
+
+  // Use useEffect to get the list from local storage
+  useEffect(() => {
+    const storedSearches = JSON.parse(localStorage.getItem("recentSearch"));
+    if (storedSearches) {
+      setRecentSearch(storedSearches);
+    }
+  }, []);
 
   const fetchData = async (e) => {
     if (e.key === "Enter") {
       try {
+        // set is loading when search is being done
         setIsloading(true);
         const data = await fetchWeather(cityName);
+
+        // Add an array with recent search an adding a new city to it
+        const cities = [...recentSearch, cityName];
+        setRecentSearch(cities); // Set the list of cities
+
+        // Set in local storage
+        localStorage.setItem("recentSearch", JSON.stringify(cities));
+
         setWeatherData(data);
         setCityName("");
         setError(null);
+
+        // hide is loading when search is done
         setIsloading(false);
       } catch (error) {
         setError(error.message);
       }
     }
   };
+
+  // Todo #2
+  // Use useEffect to get the list from local storage
 
   return (
     <div>
@@ -53,6 +76,14 @@ const App = () => {
           <p>Visibility: {weatherData.current.vis_km} km</p>
         </div>
       )}
+      <div className="recent-search">
+        <p>Recent Search</p>
+        <ul>
+          {recentSearch.map((city, index) => (
+            <li key={index}>{city}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
