@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchWeather } from "./api/fetchWeather";
+import { useUnit } from "./UnitContext";
 
 const App = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -7,10 +8,21 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isloading, setIsloading] = useState(false);
   const [recentSearch, setRecentSearch] = useState([]);
-  const [unit, setUnit] = useState("Celsius");
+  // const [unit, setUnit] = useState("Celsius");
+  const { unit, toggleUnit } = useUnit();
 
-  const toggleUnit = () => {
-    setUnit((prevUnit) => (prevUnit === "Celsius" ? "Fahrenheit" : "Celsius"));
+  const fetchDataFromHistory = async (city) => {
+    try {
+      setIsloading(true);
+      const data = await fetchWeather(city);
+      setWeatherData(data);
+      setCityName("");
+      setError(null);
+      setIsloading(false);
+    } catch (error) {
+      setError(error.message);
+      setIsloading(false);
+    }
   };
 
   // Use useEffect to get the list from local storage
@@ -90,7 +102,9 @@ const App = () => {
         <p>Recent Search</p>
         <ul>
           {recentSearch.map((city, index) => (
-            <li key={index}>{city}</li>
+            <li key={index} onClick={() => fetchDataFromHistory(city)}>
+              {city}
+            </li>
           ))}
         </ul>
       </div>
