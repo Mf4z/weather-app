@@ -7,6 +7,11 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isloading, setIsloading] = useState(false);
   const [recentSearch, setRecentSearch] = useState([]);
+  const [unit, setUnit] = useState("Celsius");
+
+  const toggleUnit = () => {
+    setUnit((prevUnit) => (prevUnit === "Celsius" ? "Fahrenheit" : "Celsius"));
+  };
 
   // Use useEffect to get the list from local storage
   useEffect(() => {
@@ -42,11 +47,14 @@ const App = () => {
     }
   };
 
-  // Todo #2
-  // Use useEffect to get the list from local storage
-
   return (
     <div>
+      <div className="unit-toggle">
+        <label>
+          <input type="checkbox" onChange={toggleUnit} />
+          Toggle to {unit === "Celsius" ? "Fahrenheit" : "Celsius"}
+        </label>
+      </div>
       <input
         type="text"
         placeholder="Enter city name..."
@@ -63,8 +71,10 @@ const App = () => {
             {weatherData.location.country}
           </h2>
           <p>
-            Temperature: {weatherData.current.temp_c} °C (
-            {weatherData.current.temp_f} °F )
+            Temperature:{" "}
+            {unit === "Celsius"
+              ? `${weatherData.current.temp_c} °C`
+              : `${weatherData.current.temp_f} °F`}
           </p>
           <p>Condition: {weatherData.current.condition.text}</p>
           <img
